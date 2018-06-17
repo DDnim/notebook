@@ -9,8 +9,10 @@ class research():
     def get_balance(self):
         self._connection.requests({'command' : 'get_balance'})
 
-    def order(self):
+    def order(self, side, product, size, price):
         self._connection.requests({'command' : 'order'
-                                    , 'side' : 'buy'
-                                    , 'product' : 'BTC_JPY' 
-                                    , 'size' : '15'})
+                                    , 'side' : side
+                                    , 'product' : product
+                                    , 'size' : size
+                                    , 'price' : price
+                                    })

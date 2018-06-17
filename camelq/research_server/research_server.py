@@ -37,8 +37,18 @@ class server():
 
     def _order(self, p):
         print(int(p['size']), self.account.stock_list[p['product']].size, self.account.balance)
-        self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size + int(p['size'])
-        self.account.balance = self.account.balance - self.account.stock_list[p['product']].price * int(p['size'])
+        if p['side'] == 'buy':
+            if self.account.balance > self.account.stock_list[p['product']].price * int(p['size']):
+                self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size + int(p['size'])
+                self.account.balance = self.account.balance - self.account.stock_list[p['product']].price * int(p['size'])
+            else:
+                print('Balance is not enough')
+        elif p['side'] == 'sell':
+            if self.account.stock_list[p['product']].size > int(p['size']):
+                self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size - int(p['size'])
+                self.account.balance = self.account.balance + self.account.stock_list[p['product']].price * int(p['size'])
+            else:
+                print('Product is not enough')
         print(int(p['size']), self.account.stock_list[p['product']].size, self.account.balance)
 
 
