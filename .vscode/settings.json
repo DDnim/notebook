@@ -1,3 +1,16 @@
 {
-    "python.pythonPath": "/usr/local/bin/python3"
+    "python.pythonPath": "/usr/local/bin/python3",
+    "python.unitTest.unittestArgs": [
+        "-v",
+        "-s",
+        ".",
+        "-p",
+        "test*.py"
+    ],
+    "python.unitTest.unittestEnabled": true,
+    "editor.minimap.enabled": false,
+    "files.exclude": {
+        "**/__pycache__/": true
+        // ,"**/__init__.py": true
+    }
 }

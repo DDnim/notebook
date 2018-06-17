@@ -4,9 +4,18 @@ import postgresql
 from datetime import datetime as dt
 import time
 import threading
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
+                    )
 
 
 def request_data_refresh(id_fr, id_to, market):
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
     body = {'product_code': market}
 
     DataBaseConnection = postgresql.open("pq://sundongyang:postgres@127.0.0.1/postgres")
@@ -20,7 +29,8 @@ def request_data_refresh(id_fr, id_to, market):
         id_fr = fr
 
     # 开始取得数据
-    print(id_fr, id_to)
+    logger.debug(str(id_fr)+ '->' + str(id_to))
+
     for z in range(id_fr, id_to, 100):
         try:
             response = requests.get('https://api.bitflyer.jp/v1/executions?product_code=' + market
@@ -37,13 +47,13 @@ def request_data_refresh(id_fr, id_to, market):
                         t = time.mktime(
                             dt.strptime(data.exec_date[i].replace('T', ' '), '%Y-%m-%d %H:%M:%S').timetuple())
                     executions_insert(data['id'][i], t, float(data['price'][i]), data['side'][i][:1], data['size'][i],data['id'][i])
-                print('>>', '{:.3%}'.format(((z - id_fr) / (id_to - id_fr))), '<< ' + market, )
+                logger.info('>>'+'{:.3%}'.format(((z - id_fr) / (id_to - id_fr))) + '<< ' + market)
             else:
-                print(response.status_code)
+                logger.debug(response.status_code)
                 z = z - 100
                 time.sleep(10)
         except Exception as e:
-            print(e)
+            logger.debug(e)
 
 
 def get_data(market, threads):
@@ -55,10 +65,10 @@ def get_data(market, threads):
     work_thread = []
     for i in range(1, threads + 1):
         time.sleep(1)
-        print(market, int(fr + (i - 1) * work_load), int(fr + i * work_load - 1))
+        logging.debug(str(market) + str(int(fr + (i - 1) * work_load)) + str(int(fr + i * work_load - 1)))
         work_thread.append(threading.Thread(target=request_data_refresh,
                                           args=(int(fr + (i - 1) * work_load), int(fr + i * work_load - 1), market,)))
         work_thread[i-1].start()
 
 def test():
-    print(1)
+    logging.debug(1)

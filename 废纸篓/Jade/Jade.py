@@ -18,3 +18,5 @@ def refresh_multiple_market(market_list, stock_list):
         work_thread[-1].start()
 
 refresh('BitFlyer',['FX_BTC_JPY'],16)
+
+# 4 5  7 8 9  11 12 13  15 16 17
