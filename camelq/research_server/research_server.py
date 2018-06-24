@@ -1,12 +1,18 @@
 import multiprocessing
 import time
 import logging
+import database.bitflyer as db
 from account.account import account
+
+logging.basicConfig(level=logging.NOTSET)
 
 class server():
     def __init__(self, p_account=None):
         self._q = multiprocessing.Queue()
         self._e = multiprocessing.Event()
+        self._re = multiprocessing.Event()
+        self._rq = multiprocessing.Queue()
+        self.lantecy = 0
         if p_account is None:
             self.account = account()
         else:
@@ -19,39 +25,72 @@ class server():
     def wait_for_event(self, e, q):
         while True:
             self._e.wait()
-            logging.info('Got Event')
+            logging.debug('Got Event')
             self._e.clear()
             while not q.empty():
                 self._event_manager(self._q.get())
 
     def _event_manager(self, p):
+        logging.info(p)
         if type(p['command']) != str:
             logging.error('Parameter 1 have to be str.Given ' + str(type(p[0])))
         if p['command'].lower() == 'order':
-            print('order')
             self._order(p)
         elif p['command'].lower() == 'cancel':
-            print('cancel', p[1], p[2], p[3])
+            pass
         elif p['command'].lower() == 'get_balance':
-            print(self.account.balance)
+            self._rq.put(self.account.balance)
+            self._re.set()
+        elif p['command'].lower() == 'get_tick':
+            self._rq.put(self._get_tick(p))
+            self._re.set()
 
     def _order(self, p):
-        print(int(p['size']), self.account.stock_list[p['product']].size, self.account.balance)
+        if p['time'] == 0:
+            price = self.account.stock_list[p['product']].price
+        else:
+            price = float(self._get_tick(p)['price'])
         if p['side'] == 'buy':
-            if self.account.balance > self.account.stock_list[p['product']].price * int(p['size']):
+            if self.account.balance > price * int(p['size']):
                 self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size + int(p['size'])
-                self.account.balance = self.account.balance - self.account.stock_list[p['product']].price * int(p['size'])
+                self.account.balance = self.account.balance - price * int(p['size'])
             else:
-                print('Balance is not enough')
+                logging.error('Balance is not enough')
         elif p['side'] == 'sell':
             if self.account.stock_list[p['product']].size > int(p['size']):
                 self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size - int(p['size'])
-                self.account.balance = self.account.balance + self.account.stock_list[p['product']].price * int(p['size'])
+                self.account.balance = self.account.balance + price * int(p['size'])
             else:
-                print('Product is not enough')
-        print(int(p['size']), self.account.stock_list[p['product']].size, self.account.balance)
+                logging.error('Product is not enough')
+                
+        logging.info({'order_size' : int(p['size']), 'product_size' : self.account.stock_list[p['product']].size, 'currency_balance' : self.account.balance, 'product_price' : price})
+
+    def _get_tick(self, p):
+        cur = db.get_db_cur()
+        # cur.execute('select 1 as a1,2 as a2')
+        
+        query_sql = "SELECT * FROM bitflyer_executions_btc_jpy where id = (SELECT min(id) FROM bitflyer_executions_btc_jpy WHERE u_time = (SELECT MIN(u_time) FROM bitflyer_executions_btc_jpy where u_time > {}))".format(p['time'] + self.lantecy)
+        logging.debug(query_sql)
+        cur.execute(query_sql)
+
+        column_names = [desc[0] for desc in cur.description]
+
+        d = dict()
+        for row in cur:
+            d.update(zip(column_names,row))
+
+        return d
 
 
-    def requests(self, p):
+    def post(self, p):
         self._q.put(p)
         self._e.set()
+
+    def get(self, p):
+        self._q.put(p)
+        self._e.set()
+
+        self._re.wait()
+        self._re.clear()
+        return self._rq.get()
+        

@@ -7,12 +7,19 @@ class research():
         self._connection = rs.server(p_account)
 
     def get_balance(self):
-        self._connection.requests({'command' : 'get_balance'})
+        return self._connection.get({'command' : 'get_balance'})
 
-    def order(self, side, product, size, price):
-        self._connection.requests({'command' : 'order'
+    def order(self, side, product, size, price, time=0):
+        self._connection.post({'command' : 'order'
                                     , 'side' : side
                                     , 'product' : product
                                     , 'size' : size
                                     , 'price' : price
+                                    , 'time' : time
                                     })
+    
+    def get_tick(self, name, time):
+        return self._connection.get({'command' : 'get_tick' ,'time' : time})
+
+    def set_lantecy(self, t):
+        self._connection.lantecy = t

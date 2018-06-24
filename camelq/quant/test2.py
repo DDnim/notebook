@@ -1,4 +1,4 @@
-import indicator.bitflyer
+from skpy import Skype
+from getpass import getpass
 
-x = Jade2.indicator.bitflyer.indicator_bitflyer()
-x.ohlc()
+Skype("sundongyang01@163.com",getpass())

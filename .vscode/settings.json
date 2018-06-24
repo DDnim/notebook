@@ -11,6 +11,6 @@
     "editor.minimap.enabled": false,
     "files.exclude": {
         "**/__pycache__/": true
-        // ,"**/__init__.py": true
+        ,"**/__init__.py": true
     }
 }

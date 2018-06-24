@@ -48,11 +48,11 @@ class work_bitflyer(object):
             self.lock.release()
 
     def _init_sql(self, stock_name):
-        DataBaseConnection = database.get_db_connection()
-        self.sql_get_min_id = DataBaseConnection.prepare("SELECT MAX(id) FROM BITFLYER_EXECUTIONS_" + stock_name)
-        self.sql_create_new_partition = DataBaseConnection.prepare("INSERT INTO bitflyer_executions_" + stock_name + "_partition SELECT $1,$2,$3 WHERE NOT EXISTS (SELECT id_fr FROM bitflyer_executions_" + stock_name + "_partition WHERE id_fr = $1)")
-        self.sql_get_unworked_partition = DataBaseConnection.prepare("SELECT *,'0' FROM bitflyer_executions_" + stock_name + "_partition WHERE complited = '0' ORDER BY id_fr")
-        self.sql_complite_partition = DataBaseConnection.prepare("UPDATE bitflyer_executions_" + stock_name + "_partition SET complited = '1' WHERE id_fr = $1")
+        DataBaseConnection = database.get_db_cur()
+        self.sql_get_min_id = DataBaseConnection.execute("SELECT MAX(id) FROM BITFLYER_EXECUTIONS_" + stock_name)
+        self.sql_create_new_partition = DataBaseConnection.execute("INSERT INTO bitflyer_executions_" + stock_name + "_partition SELECT $1,$2,$3 WHERE NOT EXISTS (SELECT id_fr FROM bitflyer_executions_" + stock_name + "_partition WHERE id_fr = $1)")
+        self.sql_get_unworked_partition = DataBaseConnection.execute("SELECT *,'0' FROM bitflyer_executions_" + stock_name + "_partition WHERE complited = '0' ORDER BY id_fr")
+        self.sql_complite_partition = DataBaseConnection.execute("UPDATE bitflyer_executions_" + stock_name + "_partition SET complited = '1' WHERE id_fr = $1")
 
     def _insert_job_list(self, min_id):
         for i in range(min_id, self.max_id, self.min_partition_size):
