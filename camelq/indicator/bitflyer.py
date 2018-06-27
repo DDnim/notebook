@@ -31,18 +31,12 @@ class indicator_bitflyer():
     
     def get_ohlc(self, time_from, time_to = "1980-01-01 00:00:00"):
         # self._refresh_ohlc(time_from, time_to)
-        cursor = database.get_db_cur()
+        connection = database.get_db_connection()
         if time_to == "1980-01-01 00:00:00":
             time_to = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cursor.execute("SELECT * FROM bitflyer_executions_{}_ohlc WHERE '{}' <= time and time < '{}'".format(self.stock_name, time_from, time_to))
-        column_names = [desc[0] for desc in cursor.description]
+        d = pandas.read_sql_query("SELECT * FROM bitflyer_executions_{}_ohlc WHERE '{}' <= time and time < '{}'".format(self.stock_name, time_from, time_to), connection,'time')
 
-        d = dict()
-        for row in cursor:
-            d.update({row[0].timestamp() : dict(zip(column_names,row))})
         return d
-        
-
 
     def _init_sql(self):
         pass
