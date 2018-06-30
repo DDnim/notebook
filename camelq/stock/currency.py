@@ -22,3 +22,15 @@ class item():
     @price.getter
     def price(self):
         return self._price * self._size
+
+    @property
+    def size(self):
+        return None
+
+    @size.setter
+    def size(self, v):
+        self._size = v
+
+    @size.getter
+    def size(self):
+        return self._size

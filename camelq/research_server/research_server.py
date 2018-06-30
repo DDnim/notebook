@@ -3,8 +3,9 @@ import time
 import logging
 import database.bitflyer as db
 from account.account import account
+import stock
 
-logging.basicConfig(level=logging.NOTSET)
+logging.basicConfig(level=logging.ERROR)
 
 class server():
     def __init__(self, p_account=None):
@@ -30,6 +31,22 @@ class server():
             while not q.empty():
                 self._event_manager(self._q.get())
 
+
+    def post(self, p):
+        self._q.put(p, True)
+        self._e.set()
+
+    def get(self, p):
+        self._q.put(p, True)
+        # self._q.close()
+        # self._q.join_thread()
+        # time.sleep(0.1)
+        self._e.set()
+        while not self._re.wait(0.1):
+            self._e.set()
+        self._re.clear()
+        return self._rq.get()
+
     def _event_manager(self, p):
         logging.info(p)
         if type(p['command']) != str:
@@ -40,6 +57,9 @@ class server():
             pass
         elif p['command'].lower() == 'get_balance':
             self._rq.put(self.account.balance)
+            self._re.set()
+        elif p['command'].lower() == 'get_executions':
+            self._rq.put(self._get_executions())
             self._re.set()
         elif p['command'].lower() == 'get_tick':
             self._rq.put(self._get_tick(p))
@@ -52,23 +72,25 @@ class server():
             price = float(self._get_tick(p)['price'])
         if p['side'] == 'buy':
             if self.account.balance > price * int(p['size']):
-                self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size + int(p['size'])
-                self.account.balance = self.account.balance - price * int(p['size'])
+                if p['product'] in self.account.stock_list.keys():
+                    self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size + int(p['size'])
+                    self.account.balance = self.account.balance - price * int(p['size'])
+                else:
+                    self.account.add_stock(p['product'],'123')
+                    self.account.stock_list[p['product']].size = 0 + int(p['size'])
+                    self.account.balance = self.account.balance - price * int(p['size'])
             else:
                 logging.error('Balance is not enough')
         elif p['side'] == 'sell':
-            if self.account.stock_list[p['product']].size > int(p['size']):
+            if self.account.stock_list[p['product']].size >= int(p['size']):
                 self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size - int(p['size'])
                 self.account.balance = self.account.balance + price * int(p['size'])
             else:
                 logging.error('Product is not enough')
-                
         logging.info({'order_size' : int(p['size']), 'product_size' : self.account.stock_list[p['product']].size, 'currency_balance' : self.account.balance, 'product_price' : price})
 
     def _get_tick(self, p):
         cur = db.get_db_cur()
-        # cur.execute('select 1 as a1,2 as a2')
-        
         query_sql = "SELECT * FROM bitflyer_executions_btc_jpy where id = (SELECT min(id) FROM bitflyer_executions_btc_jpy WHERE u_time = (SELECT MIN(u_time) FROM bitflyer_executions_btc_jpy where u_time > {}))".format(p['time'] + self.lantecy)
         logging.debug(query_sql)
         cur.execute(query_sql)
@@ -81,16 +103,10 @@ class server():
 
         return d
 
-
-    def post(self, p):
-        self._q.put(p)
-        self._e.set()
-
-    def get(self, p):
-        self._q.put(p)
-        self._e.set()
-
-        self._re.wait()
-        self._re.clear()
-        return self._rq.get()
-        
+    def _get_executions(self):
+        o_l = dict()
+        for s in self.account.stock_list.items():
+            o = s[1]
+            if type(o) != type(stock.currency.item()):
+                o_l.update({s[0] : {'name' : o.name, 'code' : o.code, 'price' : o.price, 'size' : o.size}})
+        return o_l

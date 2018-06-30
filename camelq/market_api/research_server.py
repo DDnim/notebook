@@ -8,6 +8,10 @@ class research():
 
     def get_balance(self):
         return self._connection.get({'command' : 'get_balance'})
+        
+
+    def get_executions(self):
+        return self._connection.get({'command' : 'get_executions'})
 
     def order(self, side, product, size, price, time=0):
         self._connection.post({'command' : 'order'

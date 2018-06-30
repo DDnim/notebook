@@ -1,25 +1,11 @@
 from stock.currency import item as currency
 from stock.product import item as product
 
-class stock_list():
-    def __init__(self):
-        self._list = dict()
-
-    def __setitem__(self, index, value):
-        self._list[index] = value
-
-    def __getitem__(self, index, objtype=None):
-        if index in self._list:
-            return self._list[index]
-        else:
-            self._list[index] = product()
-            return self._list[index]
-
 class account():
     def __init__(self, currency_name = 'jpy'):
-        self.stock_list = stock_list()
+        self.stock_list = dict()
         self._currency_name = currency_name
-        self.stock_list[currency_name] = currency('jpy','jpy')
+        self.stock_list.update({currency_name : currency('jpy','jpy')})
         self.profit = 0
         self.value = 0
     
@@ -38,3 +24,8 @@ class account():
 
     def refresh(self):
         return 0
+
+    def add_stock(self, name, code = ''):
+        self.stock_list.update({name : currency(name, code)})
+        
+        
