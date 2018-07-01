@@ -14,6 +14,7 @@ class server():
         self._re = multiprocessing.Event()
         self._rq = multiprocessing.Queue()
         self.lantecy = 0
+        self.commission = 0.0015
         if p_account is None:
             self.account = account()
         else:
@@ -42,7 +43,7 @@ class server():
         # self._q.join_thread()
         # time.sleep(0.1)
         self._e.set()
-        while not self._re.wait(0.1):
+        while not self._re.wait(0.01):
             self._e.set()
         self._re.clear()
         return self._rq.get()
@@ -71,23 +72,23 @@ class server():
         else:
             price = float(self._get_tick(p)['price'])
         if p['side'] == 'buy':
-            if self.account.balance > price * int(p['size']):
+            if self.account.balance > round(price * int(p['size']) + price * int(p['size']) * self.commission):
                 if p['product'] in self.account.stock_list.keys():
                     self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size + int(p['size'])
-                    self.account.balance = self.account.balance - price * int(p['size'])
+                    self.account.balance = self.account.balance - round(price * int(p['size']) * (1 - self.commission))
                 else:
                     self.account.add_stock(p['product'],'123')
                     self.account.stock_list[p['product']].size = 0 + int(p['size'])
-                    self.account.balance = self.account.balance - price * int(p['size'])
+                    self.account.balance = self.account.balance - round(price * int(p['size']) * (1 - self.commission))
             else:
                 logging.error('Balance is not enough')
         elif p['side'] == 'sell':
             if self.account.stock_list[p['product']].size >= int(p['size']):
                 self.account.stock_list[p['product']].size = self.account.stock_list[p['product']].size - int(p['size'])
-                self.account.balance = self.account.balance + price * int(p['size'])
+                self.account.balance = self.account.balance +  round( price * int(p['size']) * (1 - self.commission))
             else:
                 logging.error('Product is not enough')
-        logging.info({'order_size' : int(p['size']), 'product_size' : self.account.stock_list[p['product']].size, 'currency_balance' : self.account.balance, 'product_price' : price})
+        #logging.info({'order_size' : int(p['size']), 'product_size' : self.account.stock_list[p['product']].size, 'currency_balance' : self.account.balance, 'product_price' : price})
 
     def _get_tick(self, p):
         cur = db.get_db_cur()
