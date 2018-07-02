@@ -3,8 +3,8 @@ import datetime
 import hashlib, hmac, json
 from common import *
 
-class bitflyer():
-    def __init__(self, key='', secret=b'', entry='https://api.bitflyer.jp/v1'):
+class binance():
+    def __init__(self, key='', secret=b'', entry='https://api.binance.com/api/v3'):
         self.entry = entry
         self.key = key
         self.secret = secret
@@ -25,7 +25,7 @@ class bitflyer():
 
     def get_ticker(self, product_code):
         '''Get ticker.'''
-        response = requests.get(self.entry + '/getticker?product_code=' + product_code)
+        response = requests.get(self.entry + '/ticker/price?symbol=' + product_code)
         if response.status_code == 200:
             return camelq_result(0, json.loads(response.text))
         else:

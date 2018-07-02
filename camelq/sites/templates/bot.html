@@ -1,0 +1,20 @@
+<html>
+    {% include "_head.html" %}
+    <body>
+        {% include "_navibar.html" %}
+        <div class="container">
+            <h1>各取引所の価格</h1>
+            <table class="table table-striped">
+            {% for p in params %}
+            <tr>
+                {% for key in p.items %}
+                    <td>{{ key.0 }}</td>
+                    <td>{{ key.1 }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </body>
+
+</html>

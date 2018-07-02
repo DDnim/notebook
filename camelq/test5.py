@@ -1,11 +1,11 @@
-import indicator.bitflyer as bf
+import model.indicator.bitflyer as bf
 import pandas
 
 import numpy as np
-import talib
+from talib import abstract
 import matplotlib.pyplot as plt
 
-from account.account import account
+from model.account.account import account
 from market_api.research_server import research
 import database.bitflyer as db
 import datetime,time
@@ -18,9 +18,9 @@ server.set_lantecy = 200
 
 b = bf.indicator_bitflyer('BTC_JPY')
 d = b.get_ohlc('2017-12-01 00:00:00', '2018-06-02 00:00:00')
-
-MA5 = talib.MA(np.array(d['close']), timeperiod=300)
-MA20 = talib.MA(np.array(d['close']), timeperiod=600)
+sma = abstract.Function('sma')
+MA5 = sma(d, timeperiod=300)
+MA20 = sma(d, timeperiod=600)
 p_p = 0
 v=[]
 

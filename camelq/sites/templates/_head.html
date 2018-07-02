@@ -1,0 +1,17 @@
+<head>
+        <meta charset="utf-8">
+        <title>Proudly presented by Camelq</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script>
+            var count = 0;
+            var countup = function(){
+                location.reload()
+            }
+            setInterval(countup, 5000);
+        </script>
+        {% for jsfile_name in script_list %}
+            <script src="{{ host }}/{{ jsfile_name }}.js"></script>
+        {% endfor %}
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static '/bootstrap/bootstrap.min.css' %}" />
+</head>

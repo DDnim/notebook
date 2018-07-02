@@ -2,8 +2,8 @@ import multiprocessing
 import time
 import logging
 import database.bitflyer as db
-from account.account import account
-import stock
+from model.account.account import account
+import model.stock as stock
 
 logging.basicConfig(level=logging.ERROR)
 
