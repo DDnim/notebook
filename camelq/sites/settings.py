@@ -121,4 +121,5 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     ('bootstrap', BASE_DIR + '/sites/static/css/'),
+    ('echarts', BASE_DIR + '/sites/static/js/'),
 )
