@@ -1,21 +1,114 @@
 <html>
     <head>
     {% include "_head.html" %}
+    {% load static %}
+    <script src="{% static '/js/echarts.min.js' %}"></script>
     </head>
-    <body>
+    <body onload="load('nav_market')">
         {% include "_navibar.html" %}
+        <script type="text/javascript">
+            
+        </script>
         <div class="container">
+            <div id="chart" class="col-md-12" style="height:400px;"></div>
+            {% include "_chart.html" with datas=datas %}
+            
+            <table class="table table-striped">
+                <tr>
+                    <td class="col-md-1 show_in_chart_periods">1M</td>
+                    <td class="col-md-1 show_in_chart_periods">3M</td>
+                    <td class="col-md-1 show_in_chart_periods">5M</td>
+                    <td class="col-md-1 show_in_chart_periods active">15M</td>
+                    <td class="col-md-1 show_in_chart_periods">30M</td>
+                    <td class="col-md-1 show_in_chart_periods">1H</td>
+                    <td class="col-md-1 show_in_chart_periods">2H</td>
+                    <td class="col-md-1 show_in_chart_periods">4H</td>
+                    <td class="col-md-1 show_in_chart_periods">6H</td>
+                    <td class="col-md-1 show_in_chart_periods">12H</td>
+                    <td class="col-md-1 show_in_chart_periods">1D</td>
+                    <td class="col-md-1 show_in_chart_periods">3D</td>
+                </tr>
+            </table>
+
             <h1>各取引所の価格</h1>
             <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Market</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
             {% for p in params %}
-            <tr>
-                {% for key in p.items %}
-                    <td>{{ key.0 }}</td>
-                    <td>{{ key.1 }}</td>
-                {% endfor %}
+            <tr class='show_in_chart'>
+                <td>{{ p.market }}</td>
+                <td>{{ p.product }}</td>
+                <td>{{ p.price | floatformat:8}}</td>
+                <td><a href="https://api.cryptowat.ch/markets/{{ p.market }}/{{ p.product }}/ohlc">GO</a></td>
             </tr>
             {% endfor %}
             </table>
+            <script type="text/javascript">
+                function splitData(rawData) {
+                    var categoryData = [];
+                    var values = []
+                    for (var i = 0; i < rawData.length; i++) {
+                        categoryData.push(rawData[i].splice(0, 1)[0]);
+                        values.push(rawData[i])
+                    }
+                    return {
+                        categoryData: categoryData,
+                        values: values
+                    };
+                }
+                $(function()
+                {
+                    $(".show_in_chart").bind('click',function()
+                    {
+                        if(!myChart){
+                            alert('No target')
+                        }
+
+                        var d = $(this).children('td');
+                        chart_market = d[0].innerText;
+                        chart_product = d[1].innerText;
+                        $.get("ohlc", {'market' : chart_market, 'product' : chart_product, 'periods' : chart_peroids_num}, function(result){
+                            data0 = splitData(result);
+                            chart_tile = d[1].innerText + '(' + d[0].innerText + ')'
+                            refresh_chart();
+                        });
+                    })
+
+                    $(".show_in_chart_periods").bind('click',function()
+                    {
+                        if(!myChart){
+                            alert('No target')
+                        }
+                        h = {	"1M"	:	60	,	
+                            "3M"	:	180	,	
+                            "5M"	:	300	,	
+                            "15M"	:	900	,	
+                            "30M"	:	1800	,	
+                            "1H"	:	3600	,	
+                            "2H"	:	7200	,	
+                            "4H"	:	14400	,	
+                            "6H"	:	21600	,	
+                            "12H"	:	43200	,	
+                            "1D"	:	86400	,	
+                            "3D"	:	259200	,	
+                            "1W"	:	604800	}
+                        chart_peroids = $(this).text();
+                        chart_peroids_num = h[chart_peroids].toString();
+                        $(".show_in_chart_periods").removeClass("active");  
+                        $(this).addClass("active");
+                        $.get("ohlc", {'market' : chart_market, 'product' : chart_product, 'periods' : chart_peroids_num}, function(result){
+                            data0 = splitData(result);
+                            refresh_chart();
+                        });
+                    })
+                })
+            </script>
         </div>
     </body>
 

@@ -3,15 +3,19 @@
 <title>Proudly presented by Camelq</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script>
-    var count = 0;
-    var countup = function(){
-        location.reload()
+    function load(nav)
+    {
+        $("#" + nav).addClass('active');
     }
-    setInterval(countup, 5000);
+    // var count = 0;
+    // var countup = function(){
+    //     location.reload()
+    // }
+    // setInterval(countup, 10000);
 </script>
 {% for jsfile_name in script_list %}
     <script src="{{ host }}/{{ jsfile_name }}.js"></script>
 {% endfor %}
-{% load static %}
-<link rel="stylesheet" type="text/css" href="{% static '/bootstrap/bootstrap.min.css' %}" />
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static '/css/bootstrap.min.css' %}" />
 </head>

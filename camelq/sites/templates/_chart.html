@@ -1,65 +1,59 @@
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>ECharts</title>
-    <!-- 引入 echarts.js -->
-    {% load static %}
-    <script src="{% static '/echarts/echarts.min.js' %}"></script>
-</head>
-<body>
-    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-    <div id="main" style="width: 600px;height:400px;"></div>
-    <script type="text/javascript">
-        var myChart = echarts.init(document.getElementById('main'));
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('chart'));
 
-        var upColor = '#ec0000';
-        var upBorderColor = '#8A0000';
-        var downColor = '#00da3c';
-        var downBorderColor = '#008F28';
+    var upColor = '#ec0000';
+    var upBorderColor = '#8A0000';
+    var downColor = '#00da3c';
+    var downBorderColor = '#008F28';
+    var chart_market = 'bitfinex';
+    var chart_product = 'btcusd';
+    var chart_peroids = '15M';
+    var chart_peroids_num = '900'
 
 
-        // 数据意义：开盘(open)，收盘(close)，最低(lowest)，最高(highest)
-        var data0 = splitData([
-            {% for p in datas %}
+    // 数据意义：开盘(open)，收盘(close)，最低(lowest)，最高(highest)
+    var data0 = splitData([
+        {% for p in datas %}
+            {{ p|safe }},
+        {% endfor %}
+    ]);
 
-            {% endfor %}
-        ]);
-
-
-        function splitData(rawData) {
-            var categoryData = [];
-            var values = []
-            for (var i = 0; i < rawData.length; i++) {
-                categoryData.push(rawData[i].splice(0, 1)[0]);
-                values.push(rawData[i])
-            }
-            return {
-                categoryData: categoryData,
-                values: values
-            };
+    function splitData(rawData) {
+        var categoryData = [];
+        var values = []
+        for (var i = 0; i < rawData.length; i++) {
+            categoryData.push(rawData[i].splice(0, 1)[0]);
+            values.push(rawData[i])
         }
+        return {
+            categoryData: categoryData,
+            values: values
+        };
+    }
 
-        function calculateMA(dayCount) {
-            var result = [];
-            for (var i = 0, len = data0.values.length; i < len; i++) {
-                if (i < dayCount) {
-                    result.push('-');
-                    continue;
-                }
-                var sum = 0;
-                for (var j = 0; j < dayCount; j++) {
-                    sum += data0.values[i - j][1];
-                }
-                result.push(sum / dayCount);
+    function calculateMA(dayCount) {
+        var result = [];
+        for (var i = 0, len = data0.values.length; i < len; i++) {
+            if (i < dayCount) {
+                result.push('-');
+                continue;
             }
-            return result;
+            var sum = 0;
+            for (var j = 0; j < dayCount; j++) {
+                sum += data0.values[i - j][1];
+            }
+            result.push(sum / dayCount);
         }
+        return result;
+    }
 
-
+    var option = {}
+    var refresh_chart = function(){
 
         option = {
             title: {
-                text: '上证指数',
+                text: chart_product + '(' + chart_market + ')[' + chart_peroids + ']',
                 left: 0
             },
             tooltip: {
@@ -69,7 +63,7 @@
                 }
             },
             legend: {
-                data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
+                data: ['KLine', 'MA5', 'MA10', 'MA20', 'MA30']
             },
             grid: {
                 left: '10%',
@@ -109,7 +103,7 @@
             ],
             series: [
                 {
-                    name: '日K',
+                    name: 'Kline',
                     type: 'candlestick',
                     data: data0.values,
                     itemStyle: {
@@ -140,7 +134,7 @@
                             {
                                 name: 'highest value',
                                 type: 'max',
-                                valueDim: 'highest'
+                                valueDim: 'highest',
                             },
                             {
                                 name: 'lowest value',
@@ -236,10 +230,12 @@
                 },
 
             ]
-        };
-
-
+        }
         myChart.setOption(option);
-    </script>
-</body>
-</html>
+    };
+    refresh_chart();
+    window.onresize = function () {
+        myChart.resize();
+    };
+    
+</script>

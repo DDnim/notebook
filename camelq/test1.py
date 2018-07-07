@@ -1,4 +1,2 @@
-import talib
 
-print(talib.get_function_groups())
-
+print(1 in [2])

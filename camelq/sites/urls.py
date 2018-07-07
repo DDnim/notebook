@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', market.main),
     path('market/', market.main),
+    path('market/ohlc', market.ohlc),
     path('bot/', bot.main),
     path('ai/', ai.main),
     path('connect/', connect.main),
