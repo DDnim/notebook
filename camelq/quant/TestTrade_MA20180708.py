@@ -33,8 +33,8 @@ class quant():
             pf['time'] = pandas.to_datetime(pf['time'],unit='s')
             i = pf['close']
 
-            MA5 = talib.MA(i, timeperiod=100)
-            MA20 = talib.MA(i, timeperiod=400)
+            MA5 = talib.MA(numpy.array(i), timeperiod=100)
+            MA20 = talib.MA(numpy.array(i), timeperiod=400)
             
             ma5i = np.array(MA5)[-1]
             ma20i = np.array(MA20)[-1]
