@@ -3,6 +3,11 @@
     {% include "_head.html" %}
     {% load static %}
     <script src="{% static '/js/echarts.min.js' %}"></script>
+    <style>
+        .show_in_chart_periods{
+            text-align: center;
+        }
+    </style>
     </head>
     <body onload="load('nav_market')">
         {% include "_navibar.html" %}
@@ -31,24 +36,26 @@
             </table>
 
             <h1>各取引所の価格</h1>
-            <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Market</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Link</th>
+            <div style="height:400px; overflow:scroll;">
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Market</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                {% for p in params %}
+                <tr class='show_in_chart'>
+                    <td>{{ p.market }}</td>
+                    <td>{{ p.product }}</td>
+                    <td>{{ p.price | floatformat:8}}</td>
+                    <td><a href="https://api.cryptowat.ch/markets/{{ p.market }}/{{ p.product }}/ohlc">GO</a></td>
                 </tr>
-            </thead>
-            {% for p in params %}
-            <tr class='show_in_chart'>
-                <td>{{ p.market }}</td>
-                <td>{{ p.product }}</td>
-                <td>{{ p.price | floatformat:8}}</td>
-                <td><a href="https://api.cryptowat.ch/markets/{{ p.market }}/{{ p.product }}/ohlc">GO</a></td>
-            </tr>
-            {% endfor %}
-            </table>
+                {% endfor %}
+                </table>
+            </div>
             <script type="text/javascript">
                 function splitData(rawData) {
                     var categoryData = [];

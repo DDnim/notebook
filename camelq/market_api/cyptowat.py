@@ -21,6 +21,6 @@ class cyptowat():
         '''Get ticker list.'''
         response = requests.get(self.entry + 'markets/' + market + '/' + product + '/ohlc?' + periods)
         if response.status_code == 200:
-            return camelq_result(0, json.loads(response.text))
+            return camelq_result(0, json.loads(response.text)['result'][str(periods)])
         else:
             return camelq_result(100, 'Request error: ' + str(response.status_code))

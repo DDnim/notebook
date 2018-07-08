@@ -1,2 +1,3 @@
+import datetime
 
-print(1 in [2])
+print(datetime.datetime.now(datetime.timezone.utc).timestamp())
