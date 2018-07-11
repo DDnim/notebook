@@ -27,26 +27,28 @@ class quant():
 
     def run(self):
         while True:
-            self.refresh_data()
-            self.ohlc['result_info']
-            pf = pandas.DataFrame(self.ohlc['result_info'], columns=["time", "open", "close", "high", "low", "size","value"])
-            pf['time'] = pandas.to_datetime(pf['time'],unit='s')
-            i = pf['close']
+            try:
+                self.refresh_data()
+                self.ohlc['result_info']
+                pf = pandas.DataFrame(self.ohlc['result_info'], columns=["time", "open", "close", "high", "low", "size","value"])
+                pf['time'] = pandas.to_datetime(pf['time'],unit='s')
+                i = pf['close']
 
-            MA5 = talib.MA(numpy.array(i), timeperiod=100)
-            MA20 = talib.MA(numpy.array(i), timeperiod=400)
-            
-            ma5i = np.array(MA5)[-1]
-            ma20i = np.array(MA20)[-1]
-            positions = pandas.read_json(self.trade_api.get_positions('FX_BTC_JPY')['result_info'])
-
-            positions_sum = get_positions(positions)
-            
-            if ma5i > ma20i:
-                if positions_sum < 0.01:
-                    self.trade_api.request_order('FX_BTC_JPY', 'BUY', 0, 0.01)
-            elif ma5i <= ma20i:
-                if positions_sum > 0.01:
-                    self.trade_api.request_order('FX_BTC_JPY', 'SELL', 0, 0.01)
-            
-            time.sleep(30)
+                MA5 = talib.MA(np.array(i, dtype='f8'), timeperiod=100)
+                MA20 = talib.MA(np.array(i, dtype='f8'), timeperiod=400)
+                
+                ma5i = np.array(MA5)[-1]
+                ma20i = np.array(MA20)[-1]
+                positions = pandas.read_json(self.trade_api.get_positions('FX_BTC_JPY')['result_info'])
+                print(positions)
+                positions_sum = get_positions(positions)
+                
+                if ma5i > ma20i:
+                    if positions_sum < 0.02:
+                        self.trade_api.request_order('FX_BTC_JPY', 'BUY', 0, 0.01)
+                elif ma5i <= ma20i:
+                    if positions_sum > 0.02:
+                        self.trade_api.request_order('FX_BTC_JPY', 'SELL', 0, 0.01)
+                time.sleep(30)
+            except:
+                time.sleep(30)

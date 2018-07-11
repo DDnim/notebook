@@ -10,11 +10,8 @@
     </style>
     </head>
     <body onload="load('nav_market')">
-        {% include "_navibar.html" %}
-        <script type="text/javascript">
-            
-        </script>
         <div class="container">
+            {% include "_navibar.html" %}
             <div id="chart" class="col-md-12" style="height:400px;"></div>
             {% include "_chart.html" with datas=datas %}
             

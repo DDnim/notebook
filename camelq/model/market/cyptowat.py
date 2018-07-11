@@ -17,4 +17,4 @@ def ohlc(market, product, periods):
     if res['result_code'] != 0:
         return {'N/A'}
     else:
-        return res['result_info']['result'][str(periods)]
+        return res['result_info']
