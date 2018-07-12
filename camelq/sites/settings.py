@@ -24,7 +24,11 @@ SECRET_KEY = '!8$bhbe^^h=98=$2+8i!xjso9xy&p*!^edj%rv#+z7!-w%i)#-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['126.116.170.149','127.0.0.1']
+ALLOWED_HOSTS = [
+'35.200.55.35',
+'camelq.ml',
+'www.camelq.ml',
+'127.0.0.1']
 
 
 # Application definition

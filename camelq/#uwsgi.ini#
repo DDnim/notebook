@@ -8,7 +8,7 @@ module=sites.wsgi:application
 socket=127.0.0.1:9000
 # 进程个数       
 workers=5
-pidfile=/home/s0913031/notebook/camelq/camelq.pid
+ pidfile=/home/s0913031/notebook/camelq/camelq.pid
 # 指定IP端口       
 http=127.0.0.1:9001
 # 指定静态文件

@@ -33,20 +33,20 @@ class quant():
             pf['time'] = pandas.to_datetime(pf['time'],unit='s')
             i = pf['close']
 
-            MA5 = talib.MA(numpy.array(i), timeperiod=100)
-            MA20 = talib.MA(numpy.array(i), timeperiod=400)
+            MA5 = talib.MA(np.array(i, dtype='f8'), timeperiod=100)
+            MA20 = talib.MA(np.array(i, dtype='f8'), timeperiod=400)
             
             ma5i = np.array(MA5)[-1]
             ma20i = np.array(MA20)[-1]
             positions = pandas.read_json(self.trade_api.get_positions('FX_BTC_JPY')['result_info'])
 
             positions_sum = get_positions(positions)
-            
+            print(ma5i,ma20i)
             if ma5i > ma20i:
-                if positions_sum < 0.01:
-                    self.trade_api.request_order('FX_BTC_JPY', 'BUY', 0, 0.01)
+                if positions_sum < 0.07:
+                    self.trade_api.request_order('FX_BTC_JPY', 'BUY', 0, 0.02)
             elif ma5i <= ma20i:
-                if positions_sum > 0.01:
-                    self.trade_api.request_order('FX_BTC_JPY', 'SELL', 0, 0.01)
+                if positions_sum > -0.07:
+                    self.trade_api.request_order('FX_BTC_JPY', 'SELL', 0, 0.02)
             
             time.sleep(30)
