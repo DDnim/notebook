@@ -92,7 +92,13 @@ class server():
 
     def _get_tick(self, p):
         cur = db.get_db_cur()
-        query_sql = "SELECT * FROM bitflyer_executions_btc_jpy where id = (SELECT min(id) FROM bitflyer_executions_btc_jpy WHERE u_time = (SELECT MIN(u_time) FROM bitflyer_executions_btc_jpy where u_time > {}))".format(p['time'] + self.lantecy)
+        if 'side' in p.keys():
+            if p['side'] == 'BUY':
+                side = 'B'
+            else:
+                side = 'S'
+        side = 'S' 
+        query_sql = "SELECT * FROM bitflyer_executions_btc_jpy where id = (SELECT min(id) FROM bitflyer_executions_btc_jpy WHERE u_time = (SELECT MIN(u_time) FROM bitflyer_executions_btc_jpy where u_time > {} and side = '{}'))".format(p['time'] + self.lantecy, side)
         logging.debug(query_sql)
         cur.execute(query_sql)
 
